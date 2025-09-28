@@ -1,13 +1,29 @@
 local sampleRate = 44100
 local freq = 440 --A4
 local phase = 0
+
 local playing = false
 local lastBuffer = {}
 local source = love.audio.newQueueableSource(sampleRate, 16, 1)
 
 local function sine()
-	local phaseIncrement = (2 * math.pi * freq * (phase / sampleRate))
-	return math.sin(phaseIncrement)
+	local phaseInc = (2 * math.pi * freq * (phase / sampleRate))
+	return math.sin(phaseInc)
+end
+
+local function square()
+	local phaseInc = (2 * math.pi * freq * (phase / sampleRate))
+	return (math.sin(phaseInc) >= 0) and -1 or 1
+end
+
+local function saw()
+	local phaseInc = (2 * math.pi * freq * (phase / sampleRate))
+	return (phaseInc / math.pi % 2) - 1
+end
+
+local function triangle()
+	local phaseInc = (2 * math.pi * freq * (phase / sampleRate))
+	return 2 * math.abs(((phaseInc / math.pi) % 2) - 1) - 1
 end
 
 local function pushBuffer()
@@ -20,7 +36,7 @@ local function pushBuffer()
 
 	local soundData = love.sound.newSoundData(1024, sampleRate, 16, 1)
 	for i = 0, soundData:getSampleCount() - 1 do
-		local sample = sine()
+		local sample = square()
 		soundData:setSample(i, sample * 0.2) --scale volume
 		phase = phase + 1
 		lastBuffer[i + 1] = sample -- keep a copy for oscilloscope, and 1-indexed lua things btw.
