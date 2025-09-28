@@ -14,6 +14,9 @@ function engine.init()
 end
 
 function engine.setWaveform(w)
+	if osc[w] == nil then
+		error("Unsupported waveform: " .. tostring(w))
+	end
 	waveform = w
 end
 

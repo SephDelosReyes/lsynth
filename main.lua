@@ -4,8 +4,8 @@ local oscilloscope = require("ui.oscilloscope")
 -- local spectrum = require("ui.spectrum")
 
 function love.load()
-	_G.engine = engine
 	engine.init()
+	controls.init(engine)
 end
 
 function love.update(dt)
