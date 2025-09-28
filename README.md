@@ -13,3 +13,16 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
 2. Clone this repo
 3. In terminal execute `love .`
 
+### To do:
+- **synth non-negotiables**
+    - Oscillators
+    - OSC visualizer (oscilloscope)
+    - ADSR (per active oscillator)
+    - Mixer
+    - Polyphony
+- **maybes**
+    - Mod Env
+    - LFOs
+- **really down the line stuff**
+    - MIDI or equivalent file processing
+    - adapter to a piano roll UI
