@@ -18,6 +18,7 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
     - Oscillators
     - OSC visualizer (oscilloscope)
     - ADSR (per active oscillator)
+    - Filter (at least a LPF)
     - Mixer
     - Polyphony
 - **maybes**
