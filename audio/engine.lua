@@ -22,6 +22,32 @@ function engine.setWaveform(w)
 	waveform = w
 end
 
+function engine.setFrequency(f)
+	config.frequency = f
+end
+
+function engine.createSample()
+	-- local oscRaw = osc[waveform](config.frequency, t, config.sampleRate)
+	-- local adsrShaped = adsr.apply(oscRaw, t, noteState)
+	-- local filtered = filter.apply(adsrShaped)
+	return osc[waveform](config.frequency, t, config.sampleRate)
+end
+
+function engine.noteOn(key)
+	-- do nothing for now
+end
+
+function engine.queueSoundData(sd)
+	engine.source:queue(sd)
+	if not engine.source:isPlaying() then
+		engine.source:play()
+	end
+end
+
+function engine.getBuffer()
+	return lastBuffer
+end
+
 function engine.update(dt)
 	if engine.source:getFreeBufferCount() > 0 then
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
@@ -34,24 +60,6 @@ function engine.update(dt)
 		engine.queueSoundData(soundData)
 		-- spectrum = fft.analyze(lastBuffer)
 	end
-end
-
-function engine.createSample()
-	-- local oscRaw = osc[waveform](config.frequency, t, config.sampleRate)
-	-- local adsrShaped = adsr.apply(oscRaw, t, noteState)
-	-- local filtered = filter.apply(adsrShaped)
-	return osc[waveform](config.frequency, t, config.sampleRate)
-end
-
-function engine.queueSoundData(sd)
-	engine.source:queue(sd)
-	if not engine.source:isPlaying() then
-		engine.source:play()
-	end
-end
-
-function engine.getBuffer()
-	return lastBuffer
 end
 
 -- function engine.getSpectrum()
