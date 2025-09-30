@@ -4,6 +4,7 @@ local oscilloscope = require("ui.oscilloscope")
 -- local spectrum = require("ui.spectrum")
 
 function love.load()
+	love.window.setTitle("l(ua)synth")
 	engine.init()
 	controls.init(engine)
 end
