@@ -61,19 +61,18 @@ local function waveform(key)
 end
 
 local function note(key)
+	-- TODO: figure out the octave math relative to frequency
 	if key == "z" then
 		octave = octave - 1
 		print("Octave down: " .. octave)
-		return
 	elseif key == "x" then
 		octave = octave + 1
 		print("Octave up: " .. octave)
-		return
 	end
 	local freq = keyToFrequency(key)
 	if freq then
 		print("Note pressed: " .. key .. " (" .. string.format("%.2f Hz", freq) .. ")")
-		engine.noteOn(freq) -- TODO: to be wired up into the engine
+		engine.setFrequency(freq)
 	end
 end
 

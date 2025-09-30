@@ -13,6 +13,7 @@ local waveform = Waveforms.SINE
 
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
+	engine.playing = false
 end
 
 function engine.setWaveform(w)
@@ -33,12 +34,15 @@ function engine.createSample()
 	return osc[waveform](config.frequency, t, config.sampleRate)
 end
 
+function engine.noteOff() end
+
 function engine.noteOn(key)
 	-- do nothing for now
 end
 
 function engine.queueSoundData(sd)
 	engine.source:queue(sd)
+	-- TODO: moving the play/stop to assoc with key press/release action
 	if not engine.source:isPlaying() then
 		engine.source:play()
 	end
