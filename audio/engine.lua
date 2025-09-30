@@ -9,11 +9,11 @@ local engine = {}
 local t = 0 -- TODO: phase should be per oscillator, tackle in polyphony
 local lastBuffer = {}
 local waveform = Waveforms.SINE
+local playing = false -- TODO: needs a cleaner state elsewhere maybe
 -- local spectrum = {}
 
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
-	engine.playing = false
 end
 
 function engine.setWaveform(w)
@@ -34,18 +34,19 @@ function engine.createSample()
 	return osc[waveform](config.frequency, t, config.sampleRate)
 end
 
-function engine.noteOff() end
+function engine.noteOff()
+	playing = false
+end
 
-function engine.noteOn(key)
-	-- do nothing for now
+function engine.noteOn()
+	playing = true
+	if not engine.source:isPlaying() then
+		engine.source:play()
+	end
 end
 
 function engine.queueSoundData(sd)
 	engine.source:queue(sd)
-	-- TODO: moving the play/stop to assoc with key press/release action
-	if not engine.source:isPlaying() then
-		engine.source:play()
-	end
 end
 
 function engine.getBuffer()
@@ -54,6 +55,12 @@ end
 
 function engine.update(dt)
 	if engine.source:getFreeBufferCount() > 0 then
+		-- TODO: still has a bug with overlapping keypress and release. Fix in Polyphony
+		if not playing then
+			local silence = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
+			engine.queueSoundData(silence)
+			return
+		end
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		for i = 0, config.bufferSize - 1 do
 			local sample = engine.createSample()

@@ -17,6 +17,10 @@ function love.keypressed(key)
 	controls.keypressed(key)
 end
 
+function love.keyreleased(key)
+	controls.keyreleased(key)
+end
+
 function love.draw()
 	oscilloscope.draw(engine.getBuffer())
 	-- spectrum.draw(audio.getSpectrum())

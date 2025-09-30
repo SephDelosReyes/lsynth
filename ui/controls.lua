@@ -79,6 +79,10 @@ end
 function controls.keypressed(key)
 	waveform(key)
 	note(key)
+	engine.noteOn()
 end
 
+function controls.keyreleased(key)
+	engine.noteOff()
+end
 return controls
