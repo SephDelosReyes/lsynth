@@ -5,27 +5,31 @@ local engine = nil
 local octave = 4 -- starting octave (C4)
 local baseFrequency = 440 -- A=440Hz
 
+local octaveKeys = {
+	z = -1,
+	x = 1,
+}
 local midiKeymap = {
 	-- White keys (ASDF row)
-	a = 60, -- C
-	s = 62, -- D
-	d = 64, -- E
-	f = 65, -- F
-	g = 67, -- G
-	h = 69, -- A
-	j = 71, -- B
-	k = 72, -- C (next octave)
-	l = 74, -- D
-	[";"] = 76, -- E
+	a = 0, -- C
+	s = 2, -- D
+	d = 4, -- E
+	f = 5, -- F
+	g = 7, -- G
+	h = 9, -- A
+	j = 11, -- B
+	k = 12, -- C (next octave)
+	l = 14, -- D
+	[";"] = 16, -- E
 
 	-- Black keys (WERT row, above)
-	w = 61, -- C#
-	e = 63, -- D#
-	t = 66, -- F#
-	y = 68, -- G#
-	u = 70, -- A#
-	o = 73, -- C#
-	p = 75, -- D#
+	w = 1, -- C#
+	e = 3, -- D#
+	t = 6, -- F#
+	y = 8, -- G#
+	u = 10, -- A#
+	o = 13, -- C#
+	p = 15, -- D#
 }
 
 function controls.init(e)
@@ -33,12 +37,14 @@ function controls.init(e)
 end
 
 local function midiToFreq(n)
-	return 440 * 2 ^ ((n - 69) / 12)
+	return baseFrequency * 2 ^ ((n - 69) / 12)
 end
 
 local function keyToFrequency(key)
-	local midi = midiKeymap[key]
-	if midi then
+	local semitone = midiKeymap[key]
+	if semitone then
+		local midi = 12 * octave + semitone
+		print("midi: " .. midi)
 		return midiToFreq(midi)
 	end
 	return nil
@@ -60,26 +66,29 @@ local function waveform(key)
 	end
 end
 
-local function note(key)
-	-- TODO: figure out the octave math relative to frequency
-	if key == "z" then
-		octave = octave - 1
-		print("Octave down: " .. octave)
-	elseif key == "x" then
-		octave = octave + 1
-		print("Octave up: " .. octave)
+local function changeOctave(key)
+	local shift = octaveKeys[key]
+	if shift then
+		octave = octave + shift
+		print("Octave " .. (shift > 0 and "up" or "down") .. ": " .. octave)
+	end
+end
+
+local function notePressed(key)
+	if changeOctave(key) then
+		return
 	end
 	local freq = keyToFrequency(key)
 	if freq then
 		print("Note pressed: " .. key .. " (" .. string.format("%.2f Hz", freq) .. ")")
 		engine.setFrequency(freq)
+		engine.noteOn()
 	end
 end
 
 function controls.keypressed(key)
 	waveform(key)
-	note(key)
-	engine.noteOn()
+	notePressed(key)
 end
 
 function controls.keyreleased(key)
