@@ -6,14 +6,19 @@ local config = require("config")
 -- local fft = require("audio.fft")
 
 local engine = {}
-local t = 0 -- TODO: phase should be per oscillator, tackle in polyphony
 local lastBuffer = {}
-local waveform = Waveforms.SINE
-local playing = false -- TODO: needs a cleaner state elsewhere maybe
 -- local spectrum = {}
+
+-- NOTE: previous `t = 0` which basically phase, is now in a `voices` table
+local MAX_VOICES = 16
+local voices = {} --TODO: refactor to a separate module later in ADSR implementation
+local waveform = Waveforms.SINE
 
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
+	for i = 1, MAX_VOICES do
+		voices[i] = { active = false, freq = 0, phase = 0, wf = waveform }
+	end
 end
 
 function engine.setWaveform(w)
@@ -23,23 +28,41 @@ function engine.setWaveform(w)
 	waveform = w
 end
 
-function engine.setFrequency(f)
-	config.frequency = f
+-- @param freq TODO: maybe some other smart algo to switch which voice.
+local function getVoice(freq)
+	for _, v in ipairs(voices) do
+		-- take a free voice
+		if not v.active then
+			return v
+		end
+	end
+	-- or steal the first instance
+	return voices[1]
 end
 
-function engine.createSample()
+function engine.createSample(v)
 	-- local oscRaw = osc[waveform](config.frequency, t, config.sampleRate)
 	-- local adsrShaped = adsr.apply(oscRaw, t, noteState)
 	-- local filtered = filter.apply(adsrShaped)
-	return osc[waveform](config.frequency, t, config.sampleRate)
+	return osc[waveform](v.freq, v.phase, config.sampleRate)
 end
 
-function engine.noteOff()
-	playing = false
+function engine.noteOff(freq)
+	for _, v in ipairs(voices) do
+		-- find and switch off the voice with exact frequency
+		if v.active and v.freq == freq then
+			v.active = false
+		end
+	end
 end
 
-function engine.noteOn()
-	playing = true
+function engine.noteOn(freq)
+	local v = getVoice(freq)
+	-- set voice parameters
+	v.active = true
+	v.freq = freq
+	v.phase = 0 -- TODO: open later for detuning possibilities
+	v.wf = waveform
 	if not engine.source:isPlaying() then
 		engine.source:play()
 	end
@@ -55,18 +78,19 @@ end
 
 function engine.update(dt)
 	if engine.source:getFreeBufferCount() > 0 then
-		-- TODO: still has a bug with overlapping keypress and release. Fix in Polyphony
-		if not playing then
-			local silence = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
-			engine.queueSoundData(silence)
-			return
-		end
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		for i = 0, config.bufferSize - 1 do
-			local sample = engine.createSample()
+			local sample = 0
+			for _, v in ipairs(voices) do
+				if v.active then
+					sample = sample + engine.createSample(v)
+					v.phase = v.phase + 1 / config.sampleRate
+				end
+			end
+			--prevent clipping by scaling down
+			sample = sample * 0.2
 			soundData:setSample(i, sample)
 			lastBuffer[i + 1] = sample
-			t = t + 1 / config.sampleRate
 		end
 		engine.queueSoundData(soundData)
 		-- spectrum = fft.analyze(lastBuffer)

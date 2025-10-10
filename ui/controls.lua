@@ -81,8 +81,7 @@ local function notePressed(key)
 	local freq = keyToFrequency(key)
 	if freq then
 		print("Note pressed: " .. key .. " (" .. string.format("%.2f Hz", freq) .. ")")
-		engine.setFrequency(freq)
-		engine.noteOn()
+		engine.noteOn(freq)
 	end
 end
 
@@ -92,6 +91,9 @@ function controls.keypressed(key)
 end
 
 function controls.keyreleased(key)
-	engine.noteOff()
+	local freq = keyToFrequency(key)
+	if freq then
+		engine.noteOff(freq)
+	end
 end
 return controls
