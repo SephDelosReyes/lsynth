@@ -51,12 +51,15 @@ local function getVoice(freq)
 	return voices[1]
 end
 
-local function normalize(s)
-	local gain = 1 / math.sqrt(activeVoiceCount())
+local function normalize(s, activeCount)
+	if activeCount == 0 then
+		return 0
+	end
+	local gain = 1 / math.sqrt(activeCount)
 	return s * gain * 0.2
 end
 
-function engine.createSample()
+function engine.createSample(activeCount)
 	-- local oscRaw = osc[waveform](config.frequency, t, config.sampleRate)
 	-- local adsrShaped = adsr.apply(oscRaw, t, noteState)
 	-- local filtered = filter.apply(adsrShaped)
@@ -64,12 +67,12 @@ function engine.createSample()
 	local s = 0
 	for _, v in ipairs(voices) do
 		if v.active then
-			s = s + osc[waveform](v.freq, v.phase, config.sampleRate)
-			v.phase = v.phase + 1 / config.sampleRate
+			s = s + osc[v.wf](v.freq, v.phase, config.sampleRate)
+			v.phase = (v.phase + 1 / config.sampleRate) % (2 * math.pi)
 		end
 	end
-	if activeVoiceCount() > 0 then
-		s = normalize(s)
+	if activeCount > 0 then
+		s = normalize(s, activeCount)
 	end
 	return s
 end
@@ -104,9 +107,8 @@ end
 function engine.update(dt)
 	local src = engine.source
 	local freeBuffers = src:getFreeBufferCount()
-
-	local active = activeVoiceCount() > 0
-
+	local activeCount = activeVoiceCount()
+	local active = activeCount > 0
 	-- handle play/stop logic
 	if active and not src:isPlaying() then
 		src:play()
@@ -114,19 +116,17 @@ function engine.update(dt)
 		src:stop()
 		return
 	end
-
 	if not active then
 		return
 	end
-
 	if freeBuffers == 0 then
 		underruns = underruns + 1
 	end
-
+	-- main sound buffering stuff
 	if freeBuffers > 0 then
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		for i = 0, config.bufferSize - 1 do
-			local sample = engine.createSample()
+			local sample = engine.createSample(activeCount)
 			soundData:setSample(i, sample)
 			-- for oscilloscope
 			lastBuffer[i + 1] = sample
