@@ -53,7 +53,7 @@ end
 
 local function normalize(s)
 	local gain = 1 / math.sqrt(activeVoiceCount())
-	return s * gain * 0.3
+	return s * gain * 0.2
 end
 
 function engine.createSample()
