@@ -7,6 +7,7 @@ local config = require("config")
 
 local engine = {}
 local lastBuffer = {}
+local underruns = 0
 -- local spectrum = {}
 
 -- NOTE: previous `t = 0` which basically phase, is now in a `voices` table
@@ -28,6 +29,16 @@ function engine.setWaveform(w)
 	waveform = w
 end
 
+local function activeVoiceCount()
+	local n = 0
+	for _, v in ipairs(voices) do
+		if v.active then
+			n = n + 1
+		end
+	end
+	return n
+end
+
 -- @param freq TODO: maybe some other smart algo to switch which voice.
 local function getVoice(freq)
 	for _, v in ipairs(voices) do
@@ -40,11 +51,27 @@ local function getVoice(freq)
 	return voices[1]
 end
 
-function engine.createSample(v)
+local function normalize(s)
+	local gain = 1 / math.sqrt(activeVoiceCount())
+	return s * gain * 0.3
+end
+
+function engine.createSample()
 	-- local oscRaw = osc[waveform](config.frequency, t, config.sampleRate)
 	-- local adsrShaped = adsr.apply(oscRaw, t, noteState)
 	-- local filtered = filter.apply(adsrShaped)
-	return osc[waveform](v.freq, v.phase, config.sampleRate)
+	-- voices is currently global - so utilize this fact for now
+	local s = 0
+	for _, v in ipairs(voices) do
+		if v.active then
+			s = s + osc[waveform](v.freq, v.phase, config.sampleRate)
+			v.phase = v.phase + 1 / config.sampleRate
+		end
+	end
+	if activeVoiceCount() > 0 then
+		s = normalize(s)
+	end
+	return s
 end
 
 function engine.noteOff(freq)
@@ -61,11 +88,9 @@ function engine.noteOn(freq)
 	-- set voice parameters
 	v.active = true
 	v.freq = freq
-	v.phase = 0 -- TODO: open later for detuning possibilities
+	--v.phase = 0 -- TODO: open later for detuning possibilities
+	v.phase = math.random() * 2 * math.pi -- try out randomized phase
 	v.wf = waveform
-	if not engine.source:isPlaying() then
-		engine.source:play()
-	end
 end
 
 function engine.queueSoundData(sd)
@@ -77,24 +102,42 @@ function engine.getBuffer()
 end
 
 function engine.update(dt)
-	if engine.source:getFreeBufferCount() > 0 then
+	local src = engine.source
+	local freeBuffers = src:getFreeBufferCount()
+
+	local active = activeVoiceCount() > 0
+
+	-- handle play/stop logic
+	if active and not src:isPlaying() then
+		src:play()
+	elseif not active and src:isPlaying() then
+		src:stop()
+		return
+	end
+
+	if not active then
+		return
+	end
+
+	if freeBuffers == 0 then
+		underruns = underruns + 1
+	end
+
+	if freeBuffers > 0 then
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		for i = 0, config.bufferSize - 1 do
-			local sample = 0
-			for _, v in ipairs(voices) do
-				if v.active then
-					sample = sample + engine.createSample(v)
-					v.phase = v.phase + 1 / config.sampleRate
-				end
-			end
-			--prevent clipping by scaling down
-			sample = sample * 0.2
+			local sample = engine.createSample()
 			soundData:setSample(i, sample)
+			-- for oscilloscope
 			lastBuffer[i + 1] = sample
 		end
 		engine.queueSoundData(soundData)
 		-- spectrum = fft.analyze(lastBuffer)
 	end
+end
+
+function engine.getUnderruns()
+	return underruns
 end
 
 -- function engine.getSpectrum()
