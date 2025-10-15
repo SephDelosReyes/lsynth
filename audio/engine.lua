@@ -8,6 +8,8 @@ local config = require("config")
 local engine = {}
 local lastBuffer = {}
 local underruns = 0
+local lastUpdate = love.timer.getTime()
+local frameSkipThreshold = 0.05 -- 50ms
 -- local spectrum = {}
 
 -- NOTE: previous `t = 0` which basically phase, is now in a `voices` table
@@ -18,7 +20,7 @@ local waveform = Waveforms.SINE
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
 	for i = 1, MAX_VOICES do
-		voices[i] = { active = false, freq = 0, phase = 0, wf = waveform }
+		voices[i] = { active = false, freq = 0, phase = 0, wf = waveform } -- replace w/ Voice.new
 	end
 end
 
@@ -106,6 +108,12 @@ end
 
 function engine.update(dt)
 	local src = engine.source
+	local now = love.timer.getTime()
+	local frameDt = now - lastUpdate
+	lastUpdate = now
+	if frameDt > frameSkipThreshold then
+		print(string.format("⚠️ Frame skip: %.3f s", frameDt))
+	end
 	local freeBuffers = src:getFreeBufferCount()
 	local activeCount = activeVoiceCount()
 	local active = activeCount > 0
@@ -119,11 +127,13 @@ function engine.update(dt)
 	if not active then
 		return
 	end
-	if freeBuffers == 0 then
+	if config.enableUnderrunDebug and freeBuffers == 0 then
 		underruns = underruns + 1
+		print(string.format("⚠️ Underrun #%d at %.3f", underruns, now))
 	end
 	-- main sound buffering stuff
-	if freeBuffers > 0 then
+	for b = 1, math.min(freeBuffers, config.bufferQueueMax) do
+		-- if freeBuffers > 0 then
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		for i = 0, config.bufferSize - 1 do
 			local sample = engine.createSample(activeCount)
