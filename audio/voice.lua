@@ -35,7 +35,7 @@ function Voice:sample(sr, osc, dt)
 		return 0
 	end
 	local s = osc[self.wf](self.freq, self.phase, sr)
-	self.phase = (self.phase + 1 / sr) % (2 * math.pi)
+	self.phase = self.phase + 1 / sr --TODO: review math to properly bound phase to 2pi RAD
 	--apply adsr envelope
 	if self.env then
 		s = s * self.env:process(dt)
