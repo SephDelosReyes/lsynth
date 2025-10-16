@@ -1,1 +1,0 @@
--- Later feature, ADSR, mixer, and if I'm really feeling fancy some LFO envelope thingy

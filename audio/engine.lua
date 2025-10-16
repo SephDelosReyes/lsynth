@@ -2,14 +2,11 @@ local Waveforms = require("utils.waveforms")
 local Voice = require("audio.voice")
 local osc = require("audio.osc")
 local config = require("config")
--- local adsr = require("audio.adsr")
--- local filter = require("audio.filter")
--- local fft = require("audio.fft")
+local ADSR = require("audio.dsp.adsr")
 
 local engine = {}
 local lastBuffer = {}
 local underruns = 0
--- local spectrum = {}
 
 local MAX_VOICES = 5
 local voices = {} -- manage voice pool in engine
@@ -19,7 +16,7 @@ local waveform = Waveforms.SINE
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
 	for i = 1, MAX_VOICES do
-		voices[i] = Voice.new(waveform)
+		voices[i] = Voice.new(waveform, ADSR)
 	end
 end
 
@@ -82,9 +79,10 @@ end
 
 local function createSample(activeCount)
 	local s = 0
+	local dt = 1 / config.sampleRate -- seconds per sample
 	for _, v in ipairs(voices) do
 		if v.active then
-			s = s + v:sample(config.sampleRate, osc)
+			s = s + v:sample(config.sampleRate, osc, dt)
 		end
 	end
 	if activeCount > 0 then
