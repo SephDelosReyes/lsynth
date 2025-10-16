@@ -25,7 +25,7 @@ Filter.__index = Filter
 function Filter.new(cutoff)
 	local self = setmetatable({}, Filter)
 	self.sr = config.sampleRate or 44100
-	self:setCutoff(cutoff or 1000)
+	self:setCutoff(cutoff or 1200)
 	self._y = 0
 	return self
 end
