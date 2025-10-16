@@ -13,6 +13,19 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
 2. Clone this repo
 3. In terminal execute `love .`
 
+### Screenshots
+- _nothing special, still under construction_
+
+### Keybinds:
+| Key | Action |
+|-----|--------|
+| **A–;** | Play notes (white keys row) |
+| **W, E, T, Y, U, O, P** | Play sharps/flats (black keys row) |
+| **Z / X** | Shift octave **down / up** |
+| **1–4** | Switch waveform:<br>1️⃣ Sine · 2️⃣ Square · 3️⃣ Saw · 4️⃣ Triangle |
+
+> 💡 *Tip:* You can hold multiple keys to do chords and test out polyphony.
+
 ### To do:
 - **synth non-negotiables**
     - Oscillators
