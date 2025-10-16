@@ -23,6 +23,6 @@ end
 
 function love.draw()
 	oscilloscope.draw(engine.getBuffer())
-	love.graphics.print("Underruns: " .. engine.getUnderruns(), 10, 30)
+	--love.graphics.print("Underruns: " .. engine.getUnderruns(), 10, 30)
 	-- spectrum.draw(audio.getSpectrum())
 end

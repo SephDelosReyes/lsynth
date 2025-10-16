@@ -3,5 +3,4 @@ return {
 	bufferSize = 1024,
 	frequency = 440,
 	bufferQueueMax = 3,
-	enableUnderrunDebug = false,
 }
