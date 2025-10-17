@@ -9,7 +9,7 @@ function Voice.new(wf, adsr)
 		phase = 0,
 		wf = wf,
 		env = adsr and adsr:new() or nil, -- per-voice ADSR envelope
-		filter = Filter.new(1000), -- per-voice one-pole low pass filter
+		filter = Filter.new(2000), -- per-voice one-pole low pass filter
 	}, Voice)
 end
 
