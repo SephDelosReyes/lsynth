@@ -34,8 +34,12 @@ function Voice:sample(sr, osc, dt)
 	if not self.active then
 		return 0
 	end
-	local s = osc[self.wf](self.freq, self.phase, sr)
-	self.phase = self.phase + 1 / sr --TODO: review math to properly bound phase to 2pi RAD
+	local s = osc[self.wf](self.phase)
+	self.phase = self.phase + (2 * math.pi * self.freq / sr)
+	if self.phase > 1e6 then
+		-- occasional wrapping to 2pi
+		self.phase = self.phase % (2 * math.pi)
+	end
 	--apply adsr envelope
 	if self.env then
 		s = s * self.env:process(dt)

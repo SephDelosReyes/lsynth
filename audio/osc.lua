@@ -1,19 +1,29 @@
 local osc = {}
 
-function osc.sine(freq, t, sr)
-	return math.sin(2 * math.pi * freq * t)
+function osc.sine(phase)
+	return math.sin(phase)
 end
 
-function osc.square(freq, t, sr)
-	return (math.sin(2 * math.pi * freq * t) >= 0) and 1 or -1
+function osc.square(phase)
+	return (math.sin(phase) >= 0) and 1 or -1
 end
 
-function osc.saw(freq, t, sr)
-	return 2 * (t * freq - math.floor(0.5 + t * freq))
+function osc.saw(phase)
+	-- map any phase to [0,1) fraction of cycle
+	local frac = (phase / (2 * math.pi)) % 1
+	return 2 * frac - 1 -- -1..1
 end
 
-function osc.triangle(freq, t, sr)
-	return math.abs(4 * (t * freq - math.floor(0.5 + t * freq))) * 2 - 1
+function osc.triangle(phase)
+	-- map any phase to [0,1) fraction of cycle
+	local frac = (phase / (2 * math.pi)) % 1
+	if frac < 0.25 then
+		return 4 * frac
+	elseif frac < 0.75 then
+		return 2 - 4 * frac
+	else
+		return -4 + 4 * frac
+	end
 end
 
 return osc
