@@ -31,12 +31,12 @@ https://github.com/user-attachments/assets/9961babe-d6a5-460e-be49-4de19af703cc
 
 ### To do:
 - **synth non-negotiables**
-    - Oscillators
-    - OSC visualizer (oscilloscope)
-    - ADSR (per active oscillator)
-    - Filter (at least a LPF)
-    - Mixer
-    - Polyphony
+    - Oscillators ✅
+    - OSC visualizer (oscilloscope) ✅
+    - ADSR (per active oscillator) ✅
+    - Filter (at least a LPF) ✅
+    - Mixer (might not be needed, unless, I push for multi-osc)
+    - Polyphony ✅
 - **maybes**
     - Mod Env
     - LFOs
