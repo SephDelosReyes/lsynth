@@ -14,7 +14,8 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
 3. In terminal execute `love .`
 
 ### Screen captures
-[Switching over different waveforms](captures/screen-cap.mov)
+- Switching over different waveforms
+[cap](captures/screen-cap.mp4)
 ### Keybinds:
 | Key | Action |
 |-----|--------|
