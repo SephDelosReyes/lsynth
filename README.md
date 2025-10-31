@@ -13,9 +13,8 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
 2. Clone this repo
 3. In terminal execute `love .`
 
-### Screenshots
-- _nothing special, still under construction_
-
+### Screen captures
+[Switching over different waveforms](captures/screen-cap.mov)
 ### Keybinds:
 | Key | Action |
 |-----|--------|
