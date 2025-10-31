@@ -22,7 +22,7 @@ function love.keyreleased(key)
 end
 
 function love.draw()
-	oscilloscope.draw(engine.getBuffer())
+	oscilloscope.draw(engine.getBuffer(), engine.getWaveformName())
 	--love.graphics.print("Underruns: " .. engine.getUnderruns(), 10, 30)
 	-- spectrum.draw(audio.getSpectrum())
 end

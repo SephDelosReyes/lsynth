@@ -6,7 +6,7 @@ local ADSR = require("audio.dsp.adsr")
 
 local engine = {}
 local lastBuffer = {}
-local underruns = 0
+-- local underruns = 0
 
 local MAX_VOICES = 5
 local voices = {} -- manage voice pool in engine
@@ -26,6 +26,10 @@ function engine.setWaveform(w)
 		error("Unsupported waveform: " .. tostring(w))
 	end
 	waveform = w
+end
+
+function engine.getWaveformName()
+	return tostring(waveform)
 end
 
 local function activeVoiceCount()
@@ -112,10 +116,10 @@ local function queueSoundData(sd)
 end
 
 local function processFreeBuffers(freeBuffers, activeCount)
-	if freeBuffers == 0 then
-		underruns = underruns + 1
-		return
-	end
+	-- if freeBuffers == 0 then
+	-- 	underruns = underruns + 1
+	-- 	return
+	-- end
 	if freeBuffers > 0 then
 		local soundData = love.sound.newSoundData(config.bufferSize, config.sampleRate, 16, 1)
 		fillBuffer(soundData, config.bufferSize, activeCount)
@@ -136,12 +140,8 @@ function engine.update(dt)
 	processFreeBuffers(freeBuffers, activeCount)
 end
 
-function engine.getUnderruns()
-	return underruns
-end
-
--- function engine.getSpectrum()
--- 	return spectrum
+-- function engine.getUnderruns()
+-- 	return underruns
 -- end
 
 return engine
