@@ -14,7 +14,7 @@ _a noob attempt to make a game engine spew out a toy synth while learning how to
 3. In terminal execute `love .`
 
 ### Screen captures
-Playing chords and switching over different waveforms:
+Playing chords and switching over different waveforms (will fix audio recording later):
 
 https://github.com/user-attachments/assets/9961babe-d6a5-460e-be49-4de19af703cc
 
