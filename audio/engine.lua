@@ -4,20 +4,43 @@ local osc = require("audio.osc")
 local config = require("config")
 local ADSR = require("audio.dsp.adsr")
 
-local engine = {}
+local engine = {
+	currentCutoff = config.FILTER_CUTOFF,
+	voices = {},
+}
 local lastBuffer = {}
 -- local underruns = 0
 
 local MAX_VOICES = 5
-local voices = {} -- manage voice pool in engine
 local waveform = Waveforms.SINE
 
 -- Initialize love2d queueable source and voice pool
 function engine.init()
 	engine.source = love.audio.newQueueableSource(config.sampleRate, 16, 1)
 	for i = 1, MAX_VOICES do
-		voices[i] = Voice.new(waveform, ADSR)
+		engine.voices[i] = Voice.new(waveform, ADSR)
 	end
+end
+
+function engine.setCutoff(newCutoff)
+	engine.currentCutoff = math.max(config.FILTER_CUTOFF_MIN, math.min(config.FILTER_CUTOFF_MAX, newCutoff))
+
+	print("engine currentCutoff: " .. engine.currentCutoff)
+	for _, v in ipairs(engine.voices) do
+		if v.active and v.filter then
+			print("engine currentCutoff: " .. engine.currentCutoff .. "actually set")
+			v.filter:setCutoff(engine.currentCutoff)
+		end
+	end
+end
+
+function engine.getCurrentCutoff()
+	return engine.currentCutoff
+end
+
+function engine.changeCutoff(newCutoff)
+	print("setting cutoff")
+	engine.setCutoff(newCutoff)
 end
 
 -- Required by waveform switcher in controls.lua
@@ -34,7 +57,7 @@ end
 
 local function activeVoiceCount()
 	local n = 0
-	for _, v in ipairs(voices) do
+	for _, v in ipairs(engine.voices) do
 		if v.active then
 			n = n + 1
 		end
@@ -44,18 +67,18 @@ end
 
 -- @param freq TODO: maybe some other smart algo to switch which voice.
 local function getVoice(freq)
-	for _, v in ipairs(voices) do
+	for _, v in ipairs(engine.voices) do
 		-- take a free voice
 		if not v.active then
 			return v
 		end
 	end
 	-- or steal the first instance
-	return voices[1]
+	return engine.voices[1]
 end
 
 function engine.noteOff(freq)
-	for _, v in ipairs(voices) do
+	for _, v in ipairs(engine.voices) do
 		-- find and switch off the voice with exact frequency
 		if v.active and v.freq == freq then
 			v:off()
@@ -84,7 +107,7 @@ end
 local function createSample(activeCount)
 	local s = 0
 	local dt = 1 / config.sampleRate -- seconds per sample
-	for _, v in ipairs(voices) do
+	for _, v in ipairs(engine.voices) do
 		if v.active then
 			s = s + v:sample(config.sampleRate, osc, dt)
 		end

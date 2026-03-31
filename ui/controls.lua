@@ -1,7 +1,8 @@
 local controls = {}
 
 local waveforms = require("utils.waveforms")
-local engine = nil
+local engine = require("audio.engine")
+local config = require("config")
 local octave = 4 -- starting octave (C4)
 local baseFrequency = 440 -- A=440Hz
 
@@ -85,9 +86,20 @@ local function notePressed(key)
 	end
 end
 
+local function filterControls(key)
+	if key == "[" then
+		print("cuttoff keypressed [")
+		engine.changeCutoff(engine.getCurrentCutoff() / config.FILTER_CUTOFF_SCALE)
+	elseif key == "]" then
+		print("cuttoff keypressed ]")
+		engine.changeCutoff(engine.getCurrentCutoff() * config.FILTER_CUTOFF_SCALE)
+	end
+end
+
 function controls.keypressed(key)
 	waveform(key)
 	notePressed(key)
+	filterControls(key)
 end
 
 function controls.keyreleased(key)
@@ -96,4 +108,5 @@ function controls.keyreleased(key)
 		engine.noteOff(freq)
 	end
 end
+
 return controls

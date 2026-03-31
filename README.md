@@ -26,6 +26,7 @@ https://github.com/user-attachments/assets/9961babe-d6a5-460e-be49-4de19af703cc
 | **W, E, T, Y, U, O, P** | Play sharps/flats (black keys row) |
 | **Z / X** | Shift octave **down / up** |
 | **1–4** | Switch waveform:<br>1️⃣ Sine · 2️⃣ Square · 3️⃣ Saw · 4️⃣ Triangle |
+| **\[ / \]** | **Decrease / Increase** filter cutoff frequency |
 
 > 💡 *Tip:* You can hold multiple keys to do chords and test out polyphony.
 
