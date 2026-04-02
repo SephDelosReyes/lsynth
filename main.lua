@@ -1,15 +1,17 @@
 local engine = require("audio.engine")
 local controls = require("ui.controls")
 local oscilloscope = require("ui.oscilloscope")
+local midi = require("input.midi")
 -- local spectrum = require("ui.spectrum")
 
 function love.load()
 	love.window.setTitle("l(ua)synth")
 	engine.init()
-	controls.init(engine)
+	midi.init()
 end
 
 function love.update(dt)
+	midi.update()
 	engine.update(dt)
 end
 

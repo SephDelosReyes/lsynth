@@ -27,7 +27,7 @@ func main() {
 		fmt.Printf("%d: %s\n", i, in.String())
 	}
 
-	conn, err := net.Dial("udp", "127.0.0.1:9001")
+	conn, err := net.Dial("udp", "127.0.0.1:9001") //TODO: config file later
 	if err != nil {
 		panic(err)
 	}

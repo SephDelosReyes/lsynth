@@ -1,11 +1,9 @@
 local controls = {}
-
 local waveforms = require("utils.waveforms")
-local engine = require("audio.engine")
 local config = require("config")
 local octave = 4 -- starting octave (C4)
 local baseFrequency = 440 -- A=440Hz
-
+local engine = require("audio.engine")
 local octaveKeys = {
 	z = -1,
 	x = 1,
@@ -32,10 +30,6 @@ local midiKeymap = {
 	o = 13, -- C#
 	p = 15, -- D#
 }
-
-function controls.init(e)
-	engine = e
-end
 
 local function midiToFreq(n)
 	return baseFrequency * 2 ^ ((n - 69) / 12)
