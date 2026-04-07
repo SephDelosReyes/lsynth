@@ -20,17 +20,13 @@ end
 function Voice:on(freq, wf)
 	self.active = true
 	self.freq = freq
-	if wf == Waveforms.SINE then
-		print("sine zero phase")
-		self.phase = 0
-	else
-		self.phase = math.random() * twoPi
-	end
+	self.phase = wf == Waveforms.SINE and 0 or math.random() * twoPi
 	self.wf = wf
+	self.fadeSamples = 32
 	if self.env then
 		self.env:noteOn()
 	end
-	self.filter:reset() --avoid pops
+	--self.filter:reset() --avoid pops
 end
 
 function Voice:off()
@@ -45,14 +41,21 @@ function Voice:sample(sr, osc, dt)
 	end
 	local s = osc[self.wf](self.phase)
 	self.phase = self.phase + (twoPi * self.freq / sr)
-	if self.phase > 1e6 then
-		-- occasional wrapping to 2pi
-		self.phase = self.phase % twoPi
-	end
+	-- TODO revisit later
+	-- if self.phase > 1e6 then
+	-- 	-- occasional wrapping to 2pi
+	-- 	self.phase = self.phase % twoPi
+	-- end
+	-- -- tiny startup fade to remove click
+	-- if self.fadeSamples and self.fadeSamples > 0 then
+	-- 	local fade = (32 - self.fadeSamples) / 32
+	-- 	s = s * fade
+	-- 	self.fadeSamples = self.fadeSamples - 1
+	-- end
 	--apply adsr envelope
 	if self.env then
 		s = s * self.env:process(dt)
-		if self.env:isIdle() then
+		if self.env:isIdle() and math.abs(self.filter._y) < 0.0001 then
 			self.active = false
 		end
 	end
