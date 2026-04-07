@@ -1,4 +1,5 @@
 local Filter = require("audio.dsp.filter")
+local Waveforms = require("utils.waveforms")
 local Voice = {}
 local config = require("config")
 Voice.__index = Voice
@@ -19,7 +20,12 @@ end
 function Voice:on(freq, wf)
 	self.active = true
 	self.freq = freq
-	self.phase = math.random() * twoPi
+	if wf == Waveforms.SINE then
+		print("sine zero phase")
+		self.phase = 0
+	else
+		self.phase = math.random() * twoPi
+	end
 	self.wf = wf
 	if self.env then
 		self.env:noteOn()

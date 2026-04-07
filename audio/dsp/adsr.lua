@@ -33,7 +33,7 @@ ADSR.__index = ADSR
 -- @return ADSR Envelope instance
 function ADSR:new(a, d, s, r)
 	return setmetatable({
-		attack = a or 0.1,
+		attack = a or 0.2,
 		decay = d or 0.5,
 		sustain = s or 0.5,
 		release = r or 0,

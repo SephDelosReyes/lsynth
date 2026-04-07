@@ -29,10 +29,9 @@ end
 function engine.setCutoff(newCutoff)
 	engine.currentCutoff = max(config.FILTER_CUTOFF_MIN, min(config.FILTER_CUTOFF_MAX, newCutoff))
 
-	print("engine currentCutoff: " .. engine.currentCutoff)
 	for _, v in ipairs(engine.voices) do
 		if v.active and v.filter then
-			print("engine currentCutoff: " .. engine.currentCutoff .. "actually set")
+			print("engine currentCutoff: " .. engine.currentCutoff)
 			v.filter:setCutoff(engine.currentCutoff)
 		end
 	end
@@ -43,7 +42,6 @@ function engine.getCurrentCutoff()
 end
 
 function engine.changeCutoff(newCutoff)
-	print("setting cutoff")
 	engine.setCutoff(newCutoff)
 end
 

@@ -21,6 +21,8 @@ Characteristics:
 local config = require("config")
 local Filter = {}
 Filter.__index = Filter
+local twoPi = 2 * math.pi
+local exp = math.exp
 
 function Filter.new(cutoff)
 	local self = setmetatable({}, Filter)
@@ -34,7 +36,7 @@ end
 -- @param freq number Cutoff frequency in Hz
 function Filter:setCutoff(freq)
 	self.cutoff = freq
-	self._a = 1 - math.exp(-2 * math.pi * freq / self.sr)
+	self._a = 1 - exp(-twoPi * freq / self.sr)
 end
 
 --- Process one input sample
