@@ -17,6 +17,7 @@ function midi.update()
 		end
 
 		local message = load("return " .. data)()
+
 		if message.type == nil then
 			-- then it is a cc
 			print("cc: " .. message.cc .. ", value: " .. message.value)

@@ -1,8 +1,8 @@
 return {
 	sampleRate = 44100,
-	bufferSize = 1024,
+	bufferSize = 512,
 	frequency = 440,
-	bufferQueueMax = 3,
+	bufferQueueMax = 2,
 
 	FILTER_CUTOFF = 1200,
 	FILTER_CUTOFF_STEP = 150,

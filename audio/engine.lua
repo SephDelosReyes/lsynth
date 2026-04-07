@@ -13,6 +13,10 @@ local lastBuffer = {}
 
 local MAX_VOICES = 5
 local waveform = Waveforms.SINE
+local dt = 1 / config.sampleRate -- seconds per sample
+local sqrt = math.sqrt
+local max = math.max
+local min = math.min
 
 -- Initialize love2d queueable source and voice pool
 function engine.init()
@@ -23,7 +27,7 @@ function engine.init()
 end
 
 function engine.setCutoff(newCutoff)
-	engine.currentCutoff = math.max(config.FILTER_CUTOFF_MIN, math.min(config.FILTER_CUTOFF_MAX, newCutoff))
+	engine.currentCutoff = max(config.FILTER_CUTOFF_MIN, min(config.FILTER_CUTOFF_MAX, newCutoff))
 
 	print("engine currentCutoff: " .. engine.currentCutoff)
 	for _, v in ipairs(engine.voices) do
@@ -100,13 +104,13 @@ local function normalize(s, activeCount)
 	if activeCount == 0 then
 		return 0
 	end
-	local gain = 1 / math.sqrt(activeCount)
+	local gain = 1 / sqrt(activeCount)
 	return s * gain * 0.2
 end
 
 local function createSample(activeCount)
 	local s = 0
-	local dt = 1 / config.sampleRate -- seconds per sample
+	--TODO maybe a smarter active voice list is better?
 	for _, v in ipairs(engine.voices) do
 		if v.active then
 			s = s + v:sample(config.sampleRate, osc, dt)

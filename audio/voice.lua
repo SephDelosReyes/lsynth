@@ -2,6 +2,7 @@ local Filter = require("audio.dsp.filter")
 local Voice = {}
 local config = require("config")
 Voice.__index = Voice
+local twoPi = 2 * math.pi
 
 function Voice.new(wf, adsr)
 	return setmetatable({
@@ -18,7 +19,7 @@ end
 function Voice:on(freq, wf)
 	self.active = true
 	self.freq = freq
-	self.phase = math.random() * 2 * math.pi
+	self.phase = math.random() * twoPi
 	self.wf = wf
 	if self.env then
 		self.env:noteOn()
@@ -33,14 +34,14 @@ function Voice:off()
 end
 
 function Voice:sample(sr, osc, dt)
-	if not self.active then
+	if not self.active then --TODO maybe not needed if sample creation is only with active voices
 		return 0
 	end
 	local s = osc[self.wf](self.phase)
-	self.phase = self.phase + (2 * math.pi * self.freq / sr)
+	self.phase = self.phase + (twoPi * self.freq / sr)
 	if self.phase > 1e6 then
 		-- occasional wrapping to 2pi
-		self.phase = self.phase % (2 * math.pi)
+		self.phase = self.phase % twoPi
 	end
 	--apply adsr envelope
 	if self.env then
@@ -50,6 +51,7 @@ function Voice:sample(sr, osc, dt)
 		end
 	end
 	--apply filter
+	--TODO is it possible to apply filter only when params change?
 	s = self.filter:process(s)
 	return s
 end
